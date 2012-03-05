@@ -15,6 +15,8 @@ public final class TrieNode {
 	
 	private final Map<ChildRef, TrieNode> children;
 	
+	private Object data;
+	
 	private static class ChildRef {
 		
 		public final TrieNode parent;
@@ -88,6 +90,14 @@ public final class TrieNode {
 			node = node.insert(s.charAt(i));
 		}
 		return node;
+	}
+	
+	public Object getData() {
+		return data;
+	}
+	
+	public void setData(Object data) {
+		this.data = data;
 	}
 	
 }
