@@ -4,7 +4,7 @@
 package ca.eandb.sortable;
 
 /**
- * @author brad
+ * @author Brad Kimmel
  *
  */
 public final class SortableChallenge {
