@@ -26,6 +26,9 @@ public final class TrieNode {
 	 * @see ChildRef
 	 */
 	private final Map<ChildRef, TrieNode> children;
+
+	/** The parent <code>TrieNode</code> of this node. */
+	private final TrieNode parent;
 	
 	/** An optional data <code>Object</code> associated with this node. */
 	private Object data;
@@ -88,16 +91,21 @@ public final class TrieNode {
 	 * Creates a new root <code>TrieNode</code>.  
 	 */
 	public TrieNode() {
-		this(new HashMap<ChildRef, TrieNode>());
+		this.children = new HashMap<ChildRef, TrieNode>();
+		this.parent = null;
 	}
 	
 	/**
-	 * Creates a new <code>TrieNode</code>.
-	 * @param children The parent-child <code>Map</code> (shared among all the
-	 * 		nodes for a given trie).
+	 * Creates a new child <code>TrieNode</code>.
+	 * @param parent The parent <code>TrieNode</code> of the new node.
 	 */
-	private TrieNode(Map<ChildRef, TrieNode> children) {
-		this.children = children;
+	private TrieNode(TrieNode parent) {
+		
+		/* Nodes in the same trie share a common children map. */
+		this.children = parent.children;
+		
+		this.parent = parent;
+		
 	}
 	
 	/**
@@ -106,7 +114,7 @@ public final class TrieNode {
 	 * @return A new <code>TrieNode</code>.
 	 */
 	private TrieNode newChild() {
-		return new TrieNode(children);
+		return new TrieNode(this);
 	}
 	
 	/**
@@ -164,6 +172,23 @@ public final class TrieNode {
 			node = node.insert(s.charAt(i));
 		}
 		return node;
+	}
+	
+	/**
+	 * Determines if this <code>TrieNode</code> is the root of a trie. 
+	 * @return A value indicating if this <code>TrieNode</code> is the root of
+	 * 		a trie.
+	 */
+	public boolean isRoot() {
+		return parent == null;
+	}
+	
+	/**
+	 * Gets the parent <code>TrieNode</code> of this <code>TrieNode</code>.
+	 * @return The parent <code>TrieNode</code> of this <code>TrieNode</code>.
+	 */
+	public TrieNode getParent() {
+		return parent;
 	}
 	
 	/**
