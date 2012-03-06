@@ -26,8 +26,10 @@ public final class ProductTrieBuilder implements ProductVisitor {
 	
 	public void addProduct(Product product) {
 		processField(product, Field.MANUFACTURER, product.getManufacturer());
-		processField(product, Field.FAMILY, product.getFamily());
 		processField(product, Field.MODEL, product.getModel());
+		if (product.getFamily() != null) {
+			processField(product, Field.FAMILY, product.getFamily());
+		}
 	}
 	
 	private void processField(Product product, Field field, String value) {		
