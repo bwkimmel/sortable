@@ -12,9 +12,17 @@ import ca.eandb.sortable.Product.Field;
  * @author brad
  *
  */
-public final class ProductTrieBuilder {
+public final class ProductTrieBuilder implements ProductVisitor {
 	
 	private final TrieNode root = new TrieNode();
+
+	/*(non-Javadoc)
+	 * @see ca.eandb.sortable.ProductVisitor#visit(ca.eandb.sortable.Product)
+	 */
+	@Override
+	public void visit(Product product) {
+		addProduct(product);
+	}
 	
 	public void addProduct(Product product) {
 		processField(product, Field.MANUFACTURER, product.getManufacturer());
