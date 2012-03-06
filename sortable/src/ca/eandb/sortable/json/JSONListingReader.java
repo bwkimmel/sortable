@@ -48,33 +48,52 @@ public final class JSONListingReader {
 			}
 			
 			JSONObject json = (JSONObject) parser.parse(line);
-			
+		
 			String title = (String) json.get("title");
-			title = StringUtil.normalize(title);
-			
-			String[] words = title.split(" ");
-			
-			Queue<TrieNode> cursors = new LinkedList<TrieNode>();
-			Set<Product> products = null;
-			Set<Product> nodeProducts = new HashSet<Product>();
-			Set<Product> foundModelMatch = new HashSet<Product>();
-			
-			for (String word : words) {
-				cursors.add(productTrie);
-				for (int i = 0, n = cursors.size(); i < n; i++) {
-					TrieNode node = cursors.remove();
-					node = node.findDescendant(word);
-					if (node != null) {
-						List<ProductMatch> matches = (List<ProductMatch>) node.getData();
-						if (matches != null) {
-							nodeProducts.clear();
-							for (ProductMatch match : matches) {
-								Product product = match.getProduct();
-								nodeProducts.add(product);
-								if (match.getField() == Field.MODEL) {
-									foundModelMatch.add(product);
-								}
+			title = title.replaceFirst(" for .*", "");
+			title = title.replaceFirst(" pour .*", "");
+			Set<Product> mp = match((String) json.get("manufacturer"), Field.MANUFACTURER, null);
+			Product product = matchOne(title, Field.MODEL, mp);
+		
+			if (mp != null && mp.contains(product)) {
+				json.put("product_name", product.getName());
+				json.put("model", product.getModel());
+			} else {
+				out.println(json.toJSONString());
+			}
+		}
+		
+	}
+	
+	private Set<Product> match(String title, Field field, Set<Product> filter) {
+		
+		title = StringUtil.normalize(title);
+		
+		String[] words = title.split(" ");
+		
+		Queue<TrieNode> cursors = new LinkedList<TrieNode>();
+		Set<Product> products = null;
+		Set<Product> nodeProducts = new HashSet<Product>();
+		Set<Product> foundModelMatch = new HashSet<Product>();
+		
+		for (String word : words) {
+			cursors.add(productTrie);
+			for (int i = 0, n = cursors.size(); i < n; i++) {
+				TrieNode node = cursors.remove();
+				node = node.findDescendant(word);
+				if (node != null) {
+					List<ProductMatch> matches = (List<ProductMatch>) node.getData();
+					if (matches != null) {
+						nodeProducts.clear();
+						for (ProductMatch match : matches) {
+							Product product = match.getProduct();
+							nodeProducts.add(product);
+							if (match.getField() == field) {
+								foundModelMatch.add(product);
 							}
+						}
+						if (filter != null) { nodeProducts.retainAll(filter); }
+						if (!nodeProducts.isEmpty()) {
 							if (products == null) {
 								products = new HashSet<Product>(nodeProducts);
 							} else {
@@ -84,26 +103,31 @@ public final class JSONListingReader {
 								}
 							}
 						}
-						cursors.add(node);
 					}
-				}
-				
-				if (products != null && products.isEmpty()) {
-					break;
+					cursors.add(node);
 				}
 			}
 			
-			if (products != null && products.size() == 1) {
-				Product[] p = products.toArray(new Product[1]);
-				if (foundModelMatch.contains(p[0])) {
-					json.put("product_name", p[0].getName());
-					json.put("model", p[0].getModel());
-					out.println(json.toJSONString());
-				}
+			if (products != null && products.isEmpty()) {
+				break;
 			}
-		
 		}
 		
+		if (products != null) {
+			products.retainAll(foundModelMatch);
+		}
+		
+		return products;
+
+	}
+	
+	private Product matchOne(String s, Field field, Set<Product> filter) {
+		Set<Product> products = match(s, field, filter);
+		if (products != null && products.size() == 1) {
+			Product[] p = products.toArray(new Product[1]);
+			return p[0];
+		}
+		return null;
 	}
 	
 }

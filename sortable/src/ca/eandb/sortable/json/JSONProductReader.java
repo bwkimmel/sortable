@@ -39,11 +39,18 @@ public final class JSONProductReader implements ProductReader {
 			
 			JSONObject json = (JSONObject) parser.parse(line);
 			
+			String family = (String) json.get("family");
+			String model = (String) json.get("model");
+			
+//			if (family != null) {
+//				model = family + " " + model;
+//			}
+			
 			Product product = new Product(
 					(String) json.get("product_name"),
 					(String) json.get("manufacturer"),
-					(String) json.get("model"),
-					(String) json.get("family"),
+					model,
+					family,
 					(String) json.get("announced-date"));
 
 			visitor.visit(product);

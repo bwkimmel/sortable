@@ -28,7 +28,7 @@ public final class ProductTrieBuilder implements ProductVisitor {
 		processField(product, Field.MANUFACTURER, product.getManufacturer());
 		processField(product, Field.MODEL, product.getModel());
 		if (product.getFamily() != null) {
-			processField(product, Field.FAMILY, product.getFamily());
+			processField(product, Field.MODEL, product.getFamily() + " " + product.getModel());
 		}
 	}
 	
@@ -37,17 +37,35 @@ public final class ProductTrieBuilder implements ProductVisitor {
 		String[] words = value.split(" ");
 		ProductMatch match = new ProductMatch(product, field);
 		
-		for (String word : words) {
-			TrieNode node = root.insert(word);
-			List<ProductMatch> products = (List<ProductMatch>) node.getData();
-			
-			if (products == null) {
-				products = new LinkedList<ProductMatch>();
-				node.setData(products);
-			}
+		for (int i = 0; i < words.length; i++) {
+			String word = "";
+			for (int j = i; j < words.length; j++) {
+				word += words[j];
 
-			products.add(match);
+				if (j - i < words.length) {
+					if (word.length() <= 1) {
+						continue;
+					}
+					if (i == j && field == Field.MODEL && word.length() > 3 && !word.matches(".*[0-9].*")) {
+						continue;
+					}
+					if (word.length() < 4 && word.matches("[0-9]*")) {
+						continue;
+					}
+				}
+
+				TrieNode node = root.insert(word);
+				List<ProductMatch> products = (List<ProductMatch>) node.getData();
+				
+				if (products == null) {
+					products = new LinkedList<ProductMatch>();
+					node.setData(products);
+				}
+
+				products.add(match);
+			}
 		}
+
 	}
 	
 	public TrieNode getRoot() {
