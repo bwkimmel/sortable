@@ -86,6 +86,7 @@
 					<fileset dir="${dist.dir}/lib" includes="**/*.jar" />
 				</path>
 			</classpath>
+			<arg line="${args}" />
 		</java>
 	</target>
 
