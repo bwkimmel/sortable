@@ -5,8 +5,9 @@ package ca.eandb.sortable.json;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -26,7 +28,9 @@ import ca.eandb.sortable.TrieNode;
 /**
  * An object that processes a set of product listings, matches them with a
  * product, and prints the results to a specified <code>PrintStream</code>.
- * The listings are given as JSON objects, with one listing per line. 
+ * The listings are given as JSON objects, with one listing per line.  See
+ * comments in {@link #match(TrieNode, String, Set)} for details on how the
+ * matching is performed.
  * @author Brad Kimmel
  */
 public final class JSONListingReader {
@@ -74,7 +78,10 @@ public final class JSONListingReader {
 	 * @throws ParseException If a line in the file does not represent a valid
 	 * 		JSON object.
 	 */
-	public void read(Reader in, PrintStream out) throws IOException, ParseException {
+	public void read(Reader in, Writer out_) throws IOException, ParseException {
+		
+		// Map to store the matching listings corresponding to each product.
+		Map<String, JSONArray> matches = new HashMap<String, JSONArray>();
 		
 		BufferedReader buf = in instanceof BufferedReader ? (BufferedReader) in : new BufferedReader(in);
 		
@@ -118,15 +125,32 @@ public final class JSONListingReader {
 				 * product to the listing JSON and reprint it.
 				 */
 				if (product != null) {
-					json.put("product_name", product.getName());
-					json.put("model", product.getModel());
-					out.println(json.toJSONString());
-				} else {
-	//				out.println(json.toJSONString());
+					JSONArray array = matches.get(product.getName());
+					if (array == null) {
+						array = new JSONArray();
+						matches.put(product.getName(), array);
+					}
+					
+					array.add(json);
 				}
 				
 			}
 			
+		}
+		
+		
+		
+		// Wrap the output writer in a PrintWriter if it is not already a
+		// PrintWriter.
+		PrintWriter out = out_ instanceof PrintWriter ? (PrintWriter) out_ : new PrintWriter(out_);
+		
+		// print the list of matching listings.
+		for (Map.Entry<String, JSONArray> e : matches.entrySet()) {
+			JSONObject obj = new JSONObject();
+			obj.put("product_name", e.getKey());
+			obj.put("listings", e.getValue());
+			obj.writeJSONString(out);
+			out.println();
 		}
 		
 	}

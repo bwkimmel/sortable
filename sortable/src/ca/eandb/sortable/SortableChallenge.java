@@ -3,9 +3,9 @@
  */
 package ca.eandb.sortable;
 
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.PrintStream;
+import java.io.FileWriter;
+import java.io.Writer;
 
 import ca.eandb.sortable.json.JSONListingReader;
 import ca.eandb.sortable.json.JSONProductReader;
@@ -31,7 +31,7 @@ public final class SortableChallenge {
 			reader = new FileReader("/home/brad/work/sortable/listings.txt");
 			JSONListingReader listingReader = new JSONListingReader(builder.getManufacturerRoot(), builder.getModelRoot());
 			
-			PrintStream out = new PrintStream(new FileOutputStream("/home/brad/work/sortable/listings.out.txt"));
+			Writer out = new FileWriter("/home/brad/work/sortable/listings.out.txt");
 			
 			listingReader.read(reader, out);
 		} catch (Exception e) {
