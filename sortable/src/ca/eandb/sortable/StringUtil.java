@@ -27,7 +27,9 @@ public final class StringUtil {
 		// make everything lower-case to make all comparisons case-insensitive. 
 		s = s.toLowerCase();
 		
-		// only consider alphanumeric characters -- remove all others
+		/* only consider alphanumeric characters -- remove all others.  This
+		 * also has the effect of reducing all word breaks to a single space.
+		 */
 		s = s.replaceAll("[^a-z0-9]+", " ");
 		
 		/* add word break at letter-number boundaries.  Model numbers composed
