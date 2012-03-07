@@ -1,9 +1,15 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="sortable">
-    
-    <!-- ================================= 
+
+	<!-- ================================= 
           target: resolve              
          ================================= -->
-    <target name="resolve" description="--> retrieve dependencies with ivy">
-        <ivy:retrieve />
-    </target>
+	<target name="resolve" description="--> retrieve dependencies with ivy">
+		<ivy:retrieve />
+	</target>
+
+	<target name="retrieve-default-data" description="--> retrieve the default product/listings data used to test against">
+		<mkdir dir="data" />
+		<get src="http://blog.snapsort.com/files/challenge_data_20110429.tar.gz" dest="data" />
+		<untar src="data/challenge_data_20110429.tar.gz" compression="gzip" dest="data" />
+	</target>
 </project>
