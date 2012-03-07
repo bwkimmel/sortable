@@ -30,9 +30,10 @@ public final class SortableChallenge {
 	 *                     objects, one per line.
 	 *   <listings_file> - A file containing a collection of listings formatted as
 	 *                     JSON objects, one per line.  If not specified, stdin is
-	 *                     used.
+	 *                     used.  A dash (-) may also be specified for stdin.
 	 *   <output_file>   - A file to which to write the results.  If not specified,
-	 *                     stdout is used.
+	 *                     stdout is used.  A dash (-) may also be specified for
+	 *                     stdout.
 	 *                     
 	 * @param args The program arguments as specified above.
 	 */
@@ -56,14 +57,16 @@ public final class SortableChallenge {
 			
 			// Read the listings, match them against the products, and print
 			// the results.
-			reader = args.length > 1 ? new FileReader(args[1]) : 
+			reader = args.length > 1 && !args[1].equals("-") ? 
+				new FileReader(args[1]) : 
 				new InputStreamReader(System.in);
 			JSONListingReader listingReader = new JSONListingReader(
 					builder.getManufacturerRoot(), builder.getModelRoot());
 			
-			Writer out = args.length > 2 ? new FileWriter(args[2]) : 
+			Writer out = args.length > 2 && !args[2].equals("-") ?
+				new FileWriter(args[2]) : 
 				new PrintWriter(System.out);
-			
+				
 			listingReader.read(reader, out);
 			
 		} catch (Exception e) {
@@ -85,9 +88,10 @@ public final class SortableChallenge {
 		System.out.println("                    objects, one per line.");
 		System.out.println("  <listings_file> - A file containing a collection of listings formatted as");
 		System.out.println("                    JSON objects, one per line.  If not specified, stdin is");
-		System.out.println("                    used.");
+		System.out.println("                    used.  A dash (-) may also be specified for stdin.");
 		System.out.println("  <output_file>   - A file to which to write the results.  If not specified,");
-		System.out.println("                    stdout is used.");
+		System.out.println("                    stdout is used.  A dash (-) may also be specified for");
+		System.out.println("                    stdout.");
 	}
 
 }
