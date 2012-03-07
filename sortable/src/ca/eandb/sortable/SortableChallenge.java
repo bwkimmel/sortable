@@ -29,7 +29,7 @@ public final class SortableChallenge {
 			productReader.read(reader, builder);
 			
 			reader = new FileReader("/home/brad/work/sortable/listings.txt");
-			JSONListingReader listingReader = new JSONListingReader(builder.getRoot());
+			JSONListingReader listingReader = new JSONListingReader(builder.getManufacturerRoot(), builder.getModelRoot());
 			
 			PrintStream out = new PrintStream(new FileOutputStream("/home/brad/work/sortable/listings.out.txt"));
 			
