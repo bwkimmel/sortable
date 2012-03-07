@@ -16,6 +16,9 @@ import ca.eandb.sortable.ProductReader;
 import ca.eandb.sortable.ProductVisitor;
 
 /**
+ * An object that reads a collection of product entities from a file.  The
+ * entities are stored as JSON objects, with one product per line.
+ * 
  * @author Brad Kimmel
  */
 public final class JSONProductReader implements ProductReader {
@@ -29,7 +32,7 @@ public final class JSONProductReader implements ProductReader {
 		BufferedReader buf = in instanceof BufferedReader ? (BufferedReader) in : new BufferedReader(in);
 		
 		JSONParser parser = new JSONParser();
-		
+
 		while (true) {
 			String line = buf.readLine();
 			if (line == null) {
