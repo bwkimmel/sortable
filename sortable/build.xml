@@ -1,4 +1,4 @@
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="sortable">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="sortable" default="run-with-default-data">
 
 	<property name="src.dir" value="src" />
 	<property name="lib.dir" value="lib" />
