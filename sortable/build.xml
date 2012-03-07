@@ -108,8 +108,22 @@
 			<arg value="${output.dir}/results.txt" />
 		</java>
 	</target>
-
-	<target name="run" depends="dist" description="--> runs the program against user-specified data">
+	
+	<target name="input-arg-products" unless="products" description="prompts for products file if necessary">
+		<input addProperty="products" message="Products file:" />
+	</target>
+	
+	<target name="input-arg-listings" unless="listings" description="prompts for listings file if necessary">
+		<input addProperty="listings" message="Listings file:" defaultvalue="-" />
+	</target>
+	
+	<target name="input-arg-results" unless="results" description="prompts for results file if necessary">
+		<input addProperty="results" message="Results file:" defaultvalue="-" />
+	</target>
+	
+	<target name="input-args" depends="input-arg-products,input-arg-listings,input-arg-results" />
+			
+	<target name="run" depends="dist,input-args" description="--> runs the program against user-specified data">
 		<java classname="${main}">
 			<classpath>
 				<path location="${dist.dir}/${ant.project.name}.jar" />
@@ -117,7 +131,9 @@
 					<fileset dir="${dist.dir}/lib" includes="**/*.jar" />
 				</path>
 			</classpath>
-			<arg line="${args}" />
+			<arg value="${products}" />
+			<arg value="${listings}" />
+			<arg value="${results}" />
 		</java>
 	</target>
 
