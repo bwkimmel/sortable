@@ -1,0 +1,90 @@
+===============================================================================
+README - Sortable Challenge Implementation
+===============================================================================
+Author: Brad Kimmel <intrepidca@gmail.com>
+Date  : March 2012
+-------------------------------------------------------------------------------
+
+Outline
+=======
+
+This project is an implementation for a programming challenge issues by
+Sortable, Inc.  Details regarding this challenge may be found at:
+
+    http://sortable.com/blog/coding-challenge/
+
+The program takes two input files: a list of products in JSON format, one per
+line, and a collection of listings in JSON format, one per line.  The challenge
+is to examine the listings and match them to at most one product.  One result
+file is produced which indicates which listings match which products.
+
+
+
+Running
+=======
+
+To run this program against the default data provided as part of the challenge
+specification, simply run:
+
+    ant
+
+on the command line.  This will download dependencies, compile the application,
+download and untar the default data, and run the application on the test data.
+The results may be found in
+
+    output/results.txt
+
+To run this program against custom data, enter the following on the command
+line:
+
+    ant run -Dproducts=<product_file> -Dlistings=<listings_file> \
+	    -Dresults=<results_file>
+
+Alternatively, any of the parameters (the ones beginning with -D) may be
+omitted and the user will be prompted for them.
+
+
+
+Technical Summary
+=================
+
+This program works by storing information about each product in two tries.  A
+trie is a tree that stores a collection of strings.  Each node in the trie
+denotes one character of input, and the path to the root from a given node
+denotes a prefix of a string stored in the trie.  For further details, see:
+
+    http://en.wikipedia.org/wiki/Trie
+
+Two tries are created from the products listing, one for the "manufacturer"
+field, and one for the model name.  Each trie contains all of the words (and
+concatenations of consecutive words) from the corresponding fields in JSON
+file.  Some of these strings are excluded from the trie to reduce the chance
+of false positives.  For details, see comments in:
+
+    ca.eandb.sortable.ProductTrieBuilder
+
+Additionally, the fields are first massaged to eliminate differences due to
+case, accents, certain word boundaries (or lack thereof), etc.  See comments
+in:
+
+    ca.eandb.sortable.StringUtil.normalize(String)
+
+for details.  The nodes in the trie corresponding to the end of each string
+are associated with the product.  After processing all products, any particular
+node may be associated with zero or more products.
+
+The manufacturer trie and the model trie are then used to match against the
+"manufacturer" and "title" fields, respectively, for each listing.  For the
+field in the listing, we search for each word (and concatenations of
+consecutive words) in the corresponding trie.  Each matching node in the trie
+yields a set of possible products to be further considered.  After processing
+all words (and concatenations of consecutive words) in the listing, we have
+to resolve the sets corresponding to each matching node to a minimal matching
+set.  In basic terms, this involves computing the intersection of these
+matching sets, but there are additional details to handle some odd cases that
+might occur.  For full details of the matching process, see comments in:
+
+    ca.eandb.sortable.json.JSONListingReader
+
+
+
