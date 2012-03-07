@@ -3,9 +3,6 @@ package ca.eandb.sortable;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 
- */
 
 /**
  * Represents a node in a trie (see {@link http://en.wikipedia.org/wiki/Trie}),
