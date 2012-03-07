@@ -136,6 +136,8 @@ public final class ProductTrieBuilder implements ProductVisitor {
 				 * it.
 				 */
 				TrieNode node = root.insert(word);
+				
+				@SuppressWarnings("unchecked")
 				LinkedList<Product> products = (LinkedList<Product>) node.getData();
 				
 				/* create a new list at this node if needed. */
