@@ -83,7 +83,7 @@
 		<mkdir dir="${dist.dir}" />
 		<mkdir dir="${dist.dir}/lib" />
 		<copy file="${jar.dir}/${ant.project.name}.jar" todir="${dist.dir}" />
-		<copy todir="${dist.dir}/lib">
+		<copy todir="${dist.dir}">
 			<fileset dir="${basedir}" includes="lib/*.jar" excludes="lib/*-sources.jar" />
 		</copy>
 	</target>
