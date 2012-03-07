@@ -9,6 +9,9 @@
 	<property name="data.dir" value="data" />
 	<property name="output.dir" value="output" />
 	
+	<property name="default.data.url" value="http://blog.snapsort.com/files" />
+	<property name="default.data.tar" value="challenge_data_20110429.tar.gz" />
+	
 	<property name="main" value="ca.eandb.sortable.SortableChallenge" />
 	
 	<!-- Download Apache IVY if it not already present. -->
@@ -87,8 +90,8 @@
 
 	<target name="retrieve-default-data" description="--> retrieve the default product/listings data used to test against">
 		<mkdir dir="${data.dir}" />
-		<get src="http://blog.snapsort.com/files/challenge_data_20110429.tar.gz" dest="${data.dir}" />
-		<untar src="${data.dir}/challenge_data_20110429.tar.gz" compression="gzip" dest="${data.dir}" />
+		<get src="${default.data.url}/${default.data.tar}" dest="${data.dir}" />
+		<untar src="${data.dir}/${default.data.tar}" compression="gzip" dest="${data.dir}" />
 	</target>
 
 	<target name="run-with-default-data" depends="dist,retrieve-default-data" description="--> runs the program against the provided test data">
