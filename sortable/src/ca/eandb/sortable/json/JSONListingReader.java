@@ -131,8 +131,9 @@ public final class JSONListingReader {
 	private Product matchOne(TrieNode root, String s, Set<Product> filter) {
 		Set<Product> products = match(root, s, filter);
 		if (products != null && products.size() == 1) {
-			Product[] p = products.toArray(new Product[1]);
-			return p[0];
+			for (Product p : products) {
+				return p;
+			}
 		}
 		return null;
 	}
