@@ -1,15 +1,92 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="sortable">
 
-	<!-- ================================= 
-          target: resolve              
-         ================================= -->
+	<property name="src.dir" value="src" />
+	<property name="lib.dir" value="lib" />
+	<property name="build.dir" value="build" />
+	<property name="jar.dir" value="${build.dir}/jar" />
+	<property name="dist.dir" value="${build.dir}/dist" />
+	<property name="classes.dir" value="${build.dir}/classes" />
+	<property name="data.dir" value="data" />
+	<property name="output.dir" value="output" />
+	
+	<property name="main" value="ca.eandb.sortable.SortableChallenge" />
+	
+	<path id="classpath">
+		<fileset dir="${lib.dir}" includes="**/*.jar" />
+	</path>
+	
 	<target name="resolve" description="--> retrieve dependencies with ivy">
 		<ivy:retrieve />
 	</target>
+	
+	<target name="clean" description="--> cleans all compiled source code">
+		<delete dir="${build.dir}" />
+	</target>
+	
+	<target name="clean-all" depends="clean" description="--> cleans everything, including data and output directories">
+		<delete dir="${data.dir}" />
+		<delete dir="${output.dir}" />
+	</target>
+	
+	<target name="compile" depends="resolve">
+		<mkdir dir="${classes.dir}" />
+		<javac target="1.5" source="1.5" srcdir="${src.dir}" destdir="${classes.dir}">
+			<classpath>
+				<path refid="classpath" />
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="jar" depends="compile">
+		<mkdir dir="${jar.dir}" />
+		<jar destfile="${jar.dir}/${ant.project.name}.jar">
+			<fileset dir="${classes.dir}" includes="**" />
+			<manifest>
+				<attribute name="Main-Class" value="${main}" />
+				<attribute name="Class-Path" value="lib/json-simple-1.1.jar" />
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="dist" depends="jar">
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.dir}/lib" />
+		<copy file="${jar.dir}/${ant.project.name}.jar" todir="${dist.dir}" />
+		<copy todir="${dist.dir}/lib">
+			<fileset dir="${basedir}" includes="lib/*.jar" excludes="lib/*-sources.jar" />
+		</copy>
+	</target>
 
 	<target name="retrieve-default-data" description="--> retrieve the default product/listings data used to test against">
-		<mkdir dir="data" />
-		<get src="http://blog.snapsort.com/files/challenge_data_20110429.tar.gz" dest="data" />
-		<untar src="data/challenge_data_20110429.tar.gz" compression="gzip" dest="data" />
+		<mkdir dir="${data.dir}" />
+		<get src="http://blog.snapsort.com/files/challenge_data_20110429.tar.gz" dest="${data.dir}" />
+		<untar src="${data.dir}/challenge_data_20110429.tar.gz" compression="gzip" dest="${data.dir}" />
 	</target>
+
+	<target name="run-with-default-data" depends="dist,retrieve-default-data" description="--> runs the program against the provided test data">
+		<mkdir dir="${output.dir}" />
+		<java classname="${main}">
+			<classpath>
+				<path location="${dist.dir}/${ant.project.name}.jar" />
+				<path>
+					<fileset dir="${dist.dir}/lib" includes="**/*.jar" />
+				</path>
+			</classpath>
+			<arg value="${data.dir}/products.txt" />
+			<arg value="${data.dir}/listings.txt" />
+			<arg value="${output.dir}/results.txt" />
+		</java>
+	</target>
+
+	<target name="run" depends="dist" description="--> runs the program against user-specified data">
+		<java classname="${main}">
+			<classpath>
+				<path location="${dist.dir}/${ant.project.name}.jar" />
+				<path>
+					<fileset dir="${dist.dir}/lib" includes="**/*.jar" />
+				</path>
+			</classpath>
+		</java>
+	</target>
+
 </project>
