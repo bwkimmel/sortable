@@ -87,4 +87,19 @@ might occur.  For full details of the matching process, see comments in:
     ca.eandb.sortable.json.JSONListingReader
 
 
+Known Limitations
+=================
+
+If there are two products which all strings which match one product also match
+another, then a listing which matches the less specific product but not
+the more specific product will not be successfully matched.  For example,
+consider the following two products:
+
+    (a) Pentax WG-1
+	(b) Pentax WG-1 GPS
+
+No listings will match (a) because the algorithm will think that the correct
+result could be (a) or (b), and therefore will report no match.  If the word
+"GPS" is present in the listing, then a unique match on (b) would still be
+found.
 
