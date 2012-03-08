@@ -54,7 +54,14 @@ public final class SortableChallenge {
 			Reader reader = new FileReader(args[0]);
 			ProductTrieBuilder builder = new ProductTrieBuilder();
 			
+			long start = System.currentTimeMillis();
 			productReader.read(reader, builder);
+			long end = System.currentTimeMillis();
+			
+			System.err.printf(
+					"Time required to build product data structures: %dms",
+					end - start);
+			System.err.println();
 			
 			// Read the listings, match them against the products, and print
 			// the results.
@@ -68,7 +75,14 @@ public final class SortableChallenge {
 				new FileWriter(args[2]) : 
 				new PrintWriter(System.out);
 				
+			start = System.currentTimeMillis();
 			listingReader.read(reader, out);
+			end = System.currentTimeMillis();
+			
+			System.err.printf(
+					"Time required to analyse listings: %dms",
+					end - start);
+			System.err.println();
 			
 		} catch (Exception e) {
 
