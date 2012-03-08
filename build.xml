@@ -93,6 +93,10 @@
 		<get src="${default.data.url}/${default.data.tar}" dest="${data.dir}" />
 		<untar src="${data.dir}/${default.data.tar}" compression="gzip" dest="${data.dir}" />
 	</target>
+	
+	<propertyset id="sortable-properties">
+		<propertyref prefix="ca.eandb.sortable." />
+	</propertyset>
 
 	<target name="run-with-default-data" depends="dist,retrieve-default-data" description="--> runs the program against the provided test data">
 		<mkdir dir="${output.dir}" />
@@ -103,6 +107,7 @@
 					<fileset dir="${dist.dir}/lib" includes="**/*.jar" />
 				</path>
 			</classpath>
+			<syspropertyset refid="sortable-properties" />
 			<arg value="${data.dir}/products.txt" />
 			<arg value="${data.dir}/listings.txt" />
 			<arg value="${output.dir}/results.txt" />
@@ -131,6 +136,7 @@
 					<fileset dir="${dist.dir}/lib" includes="**/*.jar" />
 				</path>
 			</classpath>
+			<syspropertyset refid="sortable-properties" />
 			<arg value="${products}" />
 			<arg value="${listings}" />
 			<arg value="${results}" />
