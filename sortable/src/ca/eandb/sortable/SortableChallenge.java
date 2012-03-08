@@ -23,7 +23,8 @@ import ca.eandb.sortable.json.JSONProductReader;
 public final class SortableChallenge {
 
 	/**
-	 * Usage: ca.eandb.SortableChallenge  <products_file> [<listings_file> [<output_file>]]
+	 * Usage: ca.eandb.sortableSortableChallenge  <products_file> [<listings_file> 
+	 *        [<output_file>]]
      * Matches listings against a collection of products.
 	 *
 	 *   <products_file> - A file containing a list of products formatted as JSON
