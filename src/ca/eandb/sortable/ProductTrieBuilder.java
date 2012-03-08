@@ -4,6 +4,7 @@
 package ca.eandb.sortable;
 
 import java.util.LinkedList;
+import java.util.regex.Pattern;
 
 import ca.eandb.sortable.Product.Field;
 
@@ -30,6 +31,12 @@ import ca.eandb.sortable.Product.Field;
  * @author Brad Kimmel
  */
 public final class ProductTrieBuilder implements ProductVisitor {
+	
+	/** A <code>Pattern</code> that matches strings of only numbers. */
+	private static final Pattern ALL_NUMBERS = Pattern.compile("[0-9]*");
+
+	/** A <code>Pattern</code> that matches strings of only letters. */
+	private static final Pattern ALL_LETTERS = Pattern.compile("[a-z]*");
 	
 	/** The <code>TrieNode</code> at the root of the model name trie. */
 	private final TrieNode modelRoot = new TrieNode();
@@ -94,10 +101,26 @@ public final class ProductTrieBuilder implements ProductVisitor {
 		value = StringUtil.normalize(value);
 		String[] words = value.split(" ");
 		for (int i = 0; i < words.length; i++) {
-			String word = "";
+			
+			int totalLength = 0;		// total length of word chain from i..j
+			boolean anyNumbers = false;	// any numbers in the word chain?
+			boolean anyLetters = false;	// any letters in the word chain?
+			TrieNode node = root;		// node at tip of word chain
 			
 			for (int j = i; j < words.length; j++) {
-				word += words[j];
+				
+				String word = words[j];	// current word
+				
+				// update word chain stats
+				totalLength += word.length();
+				anyNumbers = anyNumbers || !ALL_LETTERS.matcher(word).matches();
+				anyLetters = anyLetters || !ALL_NUMBERS.matcher(word).matches();
+
+				/* Add the word to the tip of the word chain in the trie, but
+				 * only associate the product with it if it passes certain
+				 * below.
+				 */
+				node = node.insert(word);
 
 				/* These are some tweaks to help eliminate false positives:
 				 * 
@@ -120,23 +143,19 @@ public final class ProductTrieBuilder implements ProductVisitor {
 				 * always accepted.
 				 */
 				if (j - i < words.length) { // always accept entire string
-					if (word.length() <= 1) { // single character
+					if (totalLength <= 1) { // single character
 						continue;
 					}
-					if (field == Field.MODEL && word.length() > 3
-							&& !word.matches(".*[0-9].*")) { // likely dictionary word 
+					if (field == Field.MODEL && totalLength > 3
+							&& !anyNumbers) { // likely dictionary word 
 						continue;
 					}
-					if (word.length() < 4 && word.matches("[0-9]*")) { // short number
+					if (word.length() < 4 && !anyLetters) { // short number
 						continue;
 					}
 				}
-
-				/* Insert the word into the trie and associate the product with
-				 * it.
-				 */
-				TrieNode node = root.insert(word);
-				
+			
+				// Get the product list associated with the node.
 				@SuppressWarnings("unchecked")
 				LinkedList<Product> products = (LinkedList<Product>) node.getData();
 				
