@@ -82,6 +82,8 @@ public final class JSONListingReader {
 		
 		// Map to store the matching listings corresponding to each product.
 		Map<String, JSONArray> matches = new HashMap<String, JSONArray>();
+		int numListings = 0;	// total number of listings
+		int numMatches = 0;		// number of listings with a unique product match
 		
 		BufferedReader buf = in instanceof BufferedReader ? (BufferedReader) in : new BufferedReader(in);
 		
@@ -130,12 +132,14 @@ public final class JSONListingReader {
 						array = new JSONArray();
 						matches.put(product.getName(), array);
 					}
-					
+			
+					numMatches++;
 					array.add(json);
 				}
 				
 			}
 			
+			numListings++;
 		}
 		
 		
@@ -152,6 +156,9 @@ public final class JSONListingReader {
 			obj.writeJSONString(out);
 			out.println();
 		}
+		
+		double pctMatch = 100.0 * (double) numMatches / (double) numListings;
+		System.err.printf("Matched %d of %d listings (%4.1f%%).", numMatches, numListings, pctMatch);
 		
 	}
 
