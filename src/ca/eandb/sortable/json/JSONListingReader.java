@@ -176,10 +176,13 @@ public final class JSONListingReader {
 							array.add(json);
 						}
 					}
-				} else if (printMisses) {
+					
+				} else if (printMisses) {	// matched manufacturer but not product
 					out.println(line);
 				}
 				
+			} else if (printMisses) {		// no match for manufacturer
+				out.println(line);
 			}
 			
 			numListings++;
@@ -195,6 +198,8 @@ public final class JSONListingReader {
 				out.println();
 			}
 		}
+		
+		out.flush();
 		
 		double pctMatch = 100.0 * (double) numMatches / (double) numListings;
 		System.err.printf("Matched %d of %d listings (%4.1f%%).", numMatches, numListings, pctMatch);
