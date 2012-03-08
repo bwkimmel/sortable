@@ -174,6 +174,7 @@ public final class JSONListingReader {
 		
 		double pctMatch = 100.0 * (double) numMatches / (double) numListings;
 		System.err.printf("Matched %d of %d listings (%4.1f%%).", numMatches, numListings, pctMatch);
+		System.err.println();
 		
 	}
 
