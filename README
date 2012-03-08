@@ -43,6 +43,14 @@ line:
 Alternatively, any of the parameters (the ones beginning with -D) may be
 omitted and the user will be prompted for them.
 
+To group the results by listing instead of by product, add the following
+command line parameter to either of the above commands:
+
+    -Dca.eandb.sortable.groupByListing=true
+
+If this is set, the matching listings will be reprinted with the corresponding
+product_name, model, and family fields added.
+
 To output a list of the unmatched listings instead, add the following command
 line parameter to either of the above commands:
 

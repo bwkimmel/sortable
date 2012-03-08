@@ -62,6 +62,19 @@ public final class JSONListingReader {
 	 */
 	private final boolean printMisses = Boolean.parseBoolean(
 			System.getProperty("ca.eandb.sortable.printMisses", "false"));
+
+	/**
+	 * A value indicating whether the results should be grouped by listing,
+	 * rather than by product.  Note that <code>ca.eandb.sortable.printMisses</code>
+	 * implies this should be the case.  If this is set and
+	 * <code>printMisses</code> is not set, the matching listings will be
+	 * reprinted to the output with the matching <code>product_name</code>,
+	 * <code>model</code>, and <code>family</code> fields added.
+	 * 
+	 * @see #printMisses
+	 */
+	private final boolean groupByListing = printMisses || Boolean.parseBoolean(
+			System.getProperty("ca.eandb.sortable.groupByListing", "false"));
 	
 	/**
 	 * Creates a new <code>JSONListingReader</code>. 
@@ -144,13 +157,23 @@ public final class JSONListingReader {
 					numMatches++;
 					
 					if (!printMisses) {
-						JSONArray array = matches.get(product.getName());
-						if (array == null) {
-							array = new JSONArray();
-							matches.put(product.getName(), array);
+						if (groupByListing) {
+							json.put("product_name", product.getName());
+							json.put("model", product.getModel());
+							if (product.getFamily() != null) {
+								json.put("family", product.getFamily());
+							}
+							json.writeJSONString(out);
+							out.println();
+						} else { // !groupByListing
+							JSONArray array = matches.get(product.getName());
+							if (array == null) {
+								array = new JSONArray();
+								matches.put(product.getName(), array);
+							}
+					
+							array.add(json);
 						}
-				
-						array.add(json);
 					}
 				} else if (printMisses) {
 					out.println(line);
@@ -162,7 +185,7 @@ public final class JSONListingReader {
 		}
 				
 		// print the list of matching listings.
-		if (!printMisses) {
+		if (!groupByListing) {
 			for (Map.Entry<String, JSONArray> e : matches.entrySet()) {
 				JSONObject obj = new JSONObject();
 				obj.put("product_name", e.getKey());
