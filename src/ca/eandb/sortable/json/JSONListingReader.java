@@ -61,7 +61,7 @@ public final class JSONListingReader {
 	 * specifications</a>.
 	 */
 	private final boolean printMisses = Boolean.parseBoolean(
-			System.getProperty("ca.eandb.sortable.printMisses", "true"));
+			System.getProperty("ca.eandb.sortable.printMisses", "false"));
 	
 	/**
 	 * Creates a new <code>JSONListingReader</code>. 
