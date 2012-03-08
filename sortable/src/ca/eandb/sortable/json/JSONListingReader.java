@@ -53,6 +53,15 @@ public final class JSONListingReader {
 	 * @see ca.eandb.sortable.ProductTrieBuilder
 	 */
 	private final TrieNode modelTrie;
+
+	/**
+	 * A value indicating whether the results should consist of a list of the
+	 * unmatched listings, rather than the results specified in the
+	 * <a href="http://sortable.com/blog/coding-challenge/">challenge
+	 * specifications</a>.
+	 */
+	private final boolean printMisses = Boolean.parseBoolean(
+			System.getProperty("ca.eandb.sortable.printMisses", "true"));
 	
 	/**
 	 * Creates a new <code>JSONListingReader</code>. 
@@ -80,8 +89,13 @@ public final class JSONListingReader {
 	 */
 	public void read(Reader in, Writer out_) throws IOException, ParseException {
 		
+		// Wrap the output writer in a PrintWriter if it is not already a
+		// PrintWriter.
+		PrintWriter out = out_ instanceof PrintWriter ? (PrintWriter) out_ : new PrintWriter(out_);
+		
 		// Map to store the matching listings corresponding to each product.
 		Map<String, JSONArray> matches = new HashMap<String, JSONArray>();
+
 		int numListings = 0;	// total number of listings
 		int numMatches = 0;		// number of listings with a unique product match
 		
@@ -127,34 +141,35 @@ public final class JSONListingReader {
 				 * product to the listing JSON and reprint it.
 				 */
 				if (product != null) {
-					JSONArray array = matches.get(product.getName());
-					if (array == null) {
-						array = new JSONArray();
-						matches.put(product.getName(), array);
-					}
-			
 					numMatches++;
-					array.add(json);
+					
+					if (!printMisses) {
+						JSONArray array = matches.get(product.getName());
+						if (array == null) {
+							array = new JSONArray();
+							matches.put(product.getName(), array);
+						}
+				
+						array.add(json);
+					}
+				} else if (printMisses) {
+					out.println(line);
 				}
 				
 			}
 			
 			numListings++;
 		}
-		
-		
-		
-		// Wrap the output writer in a PrintWriter if it is not already a
-		// PrintWriter.
-		PrintWriter out = out_ instanceof PrintWriter ? (PrintWriter) out_ : new PrintWriter(out_);
-		
+				
 		// print the list of matching listings.
-		for (Map.Entry<String, JSONArray> e : matches.entrySet()) {
-			JSONObject obj = new JSONObject();
-			obj.put("product_name", e.getKey());
-			obj.put("listings", e.getValue());
-			obj.writeJSONString(out);
-			out.println();
+		if (!printMisses) {
+			for (Map.Entry<String, JSONArray> e : matches.entrySet()) {
+				JSONObject obj = new JSONObject();
+				obj.put("product_name", e.getKey());
+				obj.put("listings", e.getValue());
+				obj.writeJSONString(out);
+				out.println();
+			}
 		}
 		
 		double pctMatch = 100.0 * (double) numMatches / (double) numListings;
