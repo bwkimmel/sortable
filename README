@@ -78,7 +78,12 @@ for details.  The nodes in the trie corresponding to the end of each string
 are associated with the product.  After processing all products, any particular
 node may be associated with zero or more products.
 
-The manufacturer trie and the model trie are then used to match against the
+The tries act as deterministic finite automatas (DFAs) used to match against
+strings in the listing.  Since the set of products is likely to change less
+often than the set of listings, we could build these tries and store them for
+later use against new listings.
+
+The manufacturer trie and the model trie are used to match against the
 "manufacturer" and "title" fields, respectively, for each listing.  For the
 field in the listing, we search for each word (and concatenations of
 consecutive words) in the corresponding trie.  Each matching node in the trie
