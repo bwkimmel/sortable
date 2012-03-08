@@ -271,6 +271,11 @@ public final class JSONListingReader {
 		
 		for (String word : words) {
 			cursors.add(root);
+			
+			/* Loop through all the cursors *currently* in the queue (not the
+			 * ones that will be added to the queue in the course of processing
+			 * the current word).
+			 */
 			for (int i = 0, n = cursors.size(); i < n; i++) {
 				TrieNode node = cursors.remove();
 				node = node.findDescendant(word);
