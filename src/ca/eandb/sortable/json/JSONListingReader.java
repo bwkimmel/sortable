@@ -125,9 +125,10 @@ public final class JSONListingReader {
 			JSONObject json = (JSONObject) parser.parse(line);
 		
 			/* Find all the products with a matching manufacturer. */
-			Set<Product> mp = match(manufacturerTrie, (String) json.get("manufacturer"), null);
+			Set<Product> manufacturerProducts = match(manufacturerTrie,
+					(String) json.get("manufacturer"), null);
 			
-			if (mp != null) { // don't continue if we didn't find any
+			if (manufacturerProducts != null) { // don't continue if we didn't find any
 				
 				/* Eliminate everything after the word "for" (or its french
 				 * translation "pour"), as everything that follows is most
@@ -148,7 +149,7 @@ public final class JSONListingReader {
 				/* Match the listing title against the model name, only
 				 * considering those products with the correct manufacturer.
 				 */
-				Product product = matchOne(modelTrie, title, mp);
+				Product product = matchOne(modelTrie, title, manufacturerProducts);
 			
 				/* If we found a match, add some fields identifying the matched
 				 * product to the listing JSON and reprint it.
