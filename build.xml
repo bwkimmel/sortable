@@ -90,7 +90,7 @@
 
 	<target name="retrieve-default-data" description="--> retrieve the default product/listings data used to test against">
 		<mkdir dir="${data.dir}" />
-		<get src="${default.data.url}/${default.data.tar}" dest="${data.dir}" />
+		<get src="${default.data.url}/${default.data.tar}" dest="${data.dir}/${default.data.tar}" />
 		<untar src="${data.dir}/${default.data.tar}" compression="gzip" dest="${data.dir}" />
 	</target>
 	
