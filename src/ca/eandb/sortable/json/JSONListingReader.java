@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import ca.eandb.sortable.Product;
+import ca.eandb.sortable.ProductMatch;
 import ca.eandb.sortable.StringUtil;
 import ca.eandb.sortable.TrieNode;
 
@@ -125,11 +128,11 @@ public final class JSONListingReader {
 			JSONObject json = (JSONObject) parser.parse(line);
 		
 			/* Find all the products with a matching manufacturer. */
-			Set<Product> manufacturerProducts = match(manufacturerTrie,
-					(String) json.get("manufacturer"), null);
+			Set<ProductMatch> manufacturerProducts = match(manufacturerTrie,
+					(String) json.get("manufacturer"), null, false);
 			
 			if (manufacturerProducts != null) { // don't continue if we didn't find any
-				
+
 				/* Eliminate everything after the word "for" (or its french
 				 * translation "pour"), as everything that follows is most
 				 * likely not the product itself.  For example:
@@ -149,7 +152,7 @@ public final class JSONListingReader {
 				/* Match the listing title against the model name, only
 				 * considering those products with the correct manufacturer.
 				 */
-				Product product = matchOne(modelTrie, title, manufacturerProducts);
+				Product product = matchOne(modelTrie, title, manufacturerProducts, true);
 			
 				/* If we found a match, add some fields identifying the matched
 				 * product to the listing JSON and reprint it.
@@ -216,10 +219,14 @@ public final class JSONListingReader {
 	 * @param filter A <code>Set</code> of <code>Product</code>s used to filter
 	 * 		the results.  If present, the specified trie will be treated as if
 	 * 		it only contained products in this <code>Set</code>.
+	 * @param useMaximalFlag A value indicating whether the matching should
+	 * 		return only maximal matches if there would otherwise be multiple
+	 * 		matching products.
 	 * @return A <code>Set</code> containing all of the <code>Product</code>s
 	 * 		that match.
 	 */
-	private Set<Product> match(TrieNode root, String s, Set<Product> filter) {
+	private Set<ProductMatch> match(TrieNode root, String s,
+			Set<ProductMatch> filter, boolean useMaximalFlag) {
 		
 		// preprocess string for matching
 		s = StringUtil.normalize(s);
@@ -272,7 +279,7 @@ public final class JSONListingReader {
 		 * loop rather than as a separate tree-traversal at the end.
 		 */
 		Queue<TrieNode> cursors = new LinkedList<TrieNode>();
-		Map<TrieNode, Set<Product>> matches = new HashMap<TrieNode, Set<Product>>();
+		Map<TrieNode, Set<ProductMatch>> matches = new HashMap<TrieNode, Set<ProductMatch>>();
 		
 		for (String word : words) {
 			cursors.add(root);
@@ -286,8 +293,8 @@ public final class JSONListingReader {
 				node = node.findDescendant(word);
 				if (node != null) {
 					if (node.getData() != null) {	// we have some matches.
-						Set<Product> products = new HashSet<Product>((List<Product>) node.getData());
-						
+						Set<ProductMatch> products = new HashSet<ProductMatch>((List<ProductMatch>) node.getData());
+
 						// apply the filter
 						if (filter != null) {
 							products.retainAll(filter);
@@ -357,9 +364,9 @@ public final class JSONListingReader {
 		 *      between such pairs of nodes do not affect the results.  We only
 		 *      consider maximal matches.
 		 */
-		Set<Product> results = null;
+		Set<ProductMatch> results = null;
 		boolean foundSingleton = false;
-		for (Set<Product> products : matches.values()) {
+		for (Set<ProductMatch> products : matches.values()) {
 			if (!foundSingleton && products.size() == 1) {
 				foundSingleton = true;
 				results = products;
@@ -377,6 +384,36 @@ public final class JSONListingReader {
 				}
 			}
 		}
+
+		/* If there are still multiple matching products, eliminate all those
+		 * matches which are not maximal (i.e., for which there is some suffix
+		 * that could be appended to the match to make a longer match).  This
+		 * is to handle the possibility that every string that matches one
+		 * product also matches another.  For example, consider:
+		 * 
+		 *   (a) Pentax WG-1
+		 *   (b) Pentax WG-1 GPS
+		 * 
+		 * There is no string that matches (a) that would not also match (b).
+		 * Consider the following listing:
+		 * 
+		 *   "PENTAX Optio WG-1 14 MP Rugged Waterproof Digital Camera"
+		 *   
+		 * Without any further consideration, this would match both (a) and (b)
+		 * and thus the program would report no unique match.  The logic we are
+		 * using here is that "WG-1" constitutes a maximal match for (a), but
+		 * there is something that *could* be appended to that substring to
+		 * create a longer match for (b).  In this case, we accept (a) and
+		 * reject (b).
+		 */
+		if (useMaximalFlag && results != null && results.size() > 1) {
+			for (Iterator<ProductMatch> iter = results.iterator(); iter.hasNext(); ) {
+				ProductMatch match = iter.next();
+				if (!match.isMaximal()) {
+					iter.remove();
+				}
+			}
+		}
 		
 		return results;
 
@@ -390,15 +427,19 @@ public final class JSONListingReader {
 	 * @param filter A <code>Set</code> of <code>Product</code>s used to filter
 	 * 		the results.  If present, the specified trie will be treated as if
 	 * 		it only contained products in this <code>Set</code>.
+	 * @param useMaximalFlag A value indicating whether the matching should
+	 * 		return only maximal matches if there would otherwise be multiple
+	 * 		matching products.
 	 * @return The matching <code>Product</code>, if there is exactly one, or
 	 * 		<code>null</code> if zero or more than one <code>Product</code>
 	 * 		matches.
 	 */
-	private Product matchOne(TrieNode root, String s, Set<Product> filter) {
-		Set<Product> products = match(root, s, filter);
+	private Product matchOne(TrieNode root, String s, Set<ProductMatch> filter,
+			boolean useMaximalFlag) {
+		Set<ProductMatch> products = match(root, s, filter, useMaximalFlag);
 		if (products != null && products.size() == 1) {
-			for (Product p : products) {
-				return p;
+			for (ProductMatch match : products) {
+				return match.getProduct();
 			}
 		}
 		return null;

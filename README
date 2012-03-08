@@ -1,4 +1,4 @@
-===============================================================================
+ ===============================================================================
 README - Sortable Challenge Implementation
 ===============================================================================
 Author: Brad Kimmel <intrepidca@gmail.com>
@@ -104,20 +104,18 @@ might occur.  For full details of the matching process, see comments in:
 
     ca.eandb.sortable.json.JSONListingReader
 
-
-Known Limitations
-=================
-
-If there are two products which all strings which match one product also match
-another, then a listing which matches the less specific product but not
-the more specific product will not be successfully matched.  For example,
-consider the following two products:
+For the model number, if there are still multiple matches after the resolution
+step described above, we only consider matches which are "maximal".  A maximal
+match is one for which no suffix could be appended to yield a longer match for
+the same product.  This allows us to handle the case where there are two
+products which all strings which match one product also match the other.  For
+example, consider the following two products:
 
     (a) Pentax WG-1
-	(b) Pentax WG-1 GPS
+    (b) Pentax WG-1 GPS
 
-No listings will match (a) because the algorithm will think that the correct
-result could be (a) or (b), and therefore will report no match.  If the word
-"GPS" is present in the listing, then a unique match on (b) would still be
-found.
+Without further consideration, no listings would match (a) because the algorithm
+would think that the correct result could be (a) or (b), and therefore would
+report no match.  However, since "WG-1" is a maximal match for (a) but not for
+(b), we accept (a) and reject (b).
 

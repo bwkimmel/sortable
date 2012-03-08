@@ -106,6 +106,7 @@ public final class ProductTrieBuilder implements ProductVisitor {
 			boolean anyNumbers = false;	// any numbers in the word chain?
 			boolean anyLetters = false;	// any letters in the word chain?
 			TrieNode node = root;		// node at tip of word chain
+			ProductMatch ancMatch = null;
 			
 			for (int j = i; j < words.length; j++) {
 				
@@ -157,11 +158,11 @@ public final class ProductTrieBuilder implements ProductVisitor {
 			
 				// Get the product list associated with the node.
 				@SuppressWarnings("unchecked")
-				LinkedList<Product> products = (LinkedList<Product>) node.getData();
+				LinkedList<ProductMatch> products = (LinkedList<ProductMatch>) node.getData();
 				
 				/* create a new list at this node if needed. */
 				if (products == null) {
-					products = new LinkedList<Product>();
+					products = new LinkedList<ProductMatch>();
 					node.setData(products);
 				}
 
@@ -170,8 +171,16 @@ public final class ProductTrieBuilder implements ProductVisitor {
 				 * since we are processing one product fully before moving on
 				 * to the next one.
 				 */
-				if (products.isEmpty() || product != products.getLast()) {
-					products.addLast(product);
+				if (products.isEmpty() || product != products.getLast().getProduct()) {
+					ProductMatch match = new ProductMatch(product);
+					match.setMaximal(true);
+					products.addLast(match);
+					
+					// ancestor is no longer maximal					
+					if (ancMatch != null) {
+						ancMatch.setMaximal(false);
+					}
+					ancMatch = match;
 				}
 			}
 		}
