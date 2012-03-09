@@ -38,7 +38,7 @@ To run this program against custom data, enter the following on the command
 line:
 
     ant run -Dproducts=<product_file> -Dlistings=<listings_file> \
-	    -Dresults=<results_file>
+        -Dresults=<results_file>
 
 Alternatively, any of the parameters (the ones beginning with -D) may be
 omitted and the user will be prompted for them.
@@ -54,7 +54,7 @@ product_name, model, and family fields added.
 To output a list of the unmatched listings instead, add the following command
 line parameter to either of the above commands:
 
-	-Dca.eandb.sortable.printMissing=true
+    -Dca.eandb.sortable.printMissing=true
 
 
 
