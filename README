@@ -86,7 +86,7 @@ for details.  The nodes in the trie corresponding to the end of each string
 are associated with the product.  After processing all products, any particular
 node may be associated with zero or more products.
 
-The tries act as deterministic finite automatas (DFAs) used to match against
+The tries act as deterministic finite automata (DFAs) used to match against
 strings in the listing.  Since the set of products is likely to change less
 often than the set of listings, we could build these tries and store them for
 later use against new listings.
