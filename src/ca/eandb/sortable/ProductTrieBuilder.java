@@ -118,7 +118,7 @@ public final class ProductTrieBuilder implements ProductVisitor {
 				anyLetters = anyLetters || !ALL_NUMBERS.matcher(word).matches();
 
 				/* Add the word to the tip of the word chain in the trie, but
-				 * only associate the product with it if it passes certain
+				 * only associate the product with it if it passes certain tests
 				 * below.
 				 */
 				node = node.insert(word);
