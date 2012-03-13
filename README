@@ -117,5 +117,5 @@ example, consider the following two products:
 Without further consideration, no listings would match (a) because the algorithm
 would think that the correct result could be (a) or (b), and therefore would
 report no match.  However, since "WG-1" is a maximal match for (a) but not for
-(b), we accept (a) and reject (b).
+(b), we accept (a) and reject (b) if "GPS" is not also present.
 
